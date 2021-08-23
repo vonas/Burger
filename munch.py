@@ -40,6 +40,14 @@ from jawa.transforms import simple_swap, expand_constants
 from burger import website
 from burger.roundedfloats import transform_floats
 
+import pickle
+
+
+class PythonObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (list, dict, str, int, float, bool, type(None))):
+            return json.JSONEncoder.default(self, obj)
+        return None
 
 def import_toppings():
     """
@@ -260,9 +268,9 @@ if __name__ == "__main__":
         summary.append(aggregate)
 
     if not compact:
-        json.dump(transform_floats(summary), output, sort_keys=True, indent=4)
+        json.dump(transform_floats(summary), output, sort_keys=True, indent=4, cls=PythonObjectEncoder)
     else:
-        json.dump(transform_floats(summary), output)
+        json.dump(transform_floats(summary), output, cls=PythonObjectEncoder)
 
     # Cleanup temporary downloads (the URL download is temporary)
     if url:
